@@ -11,12 +11,19 @@ function multiply(a, b) {
 }
 
 function divide(a, b) {
+    if (b === 0) {
+        return 'Error'
+    }
+    
     return a / b;
 }
 
-function operate(a, b, operation) {
-    return operation(a, b);
-}
+const operations = {
+    'add': add,
+    'subtract': subtract,
+    'multiply': multiply,
+    'divide': divide
+};
 
 const display = document.querySelector('.display');
 const numberButtons = document.querySelectorAll('.number');
@@ -26,35 +33,76 @@ const clearButton = document.querySelector('.clear');
 const negateButton = document.querySelector('.negate');
 const percentButton = document.querySelector('.percent');
 
-let displayValue = 0;
+let number1 = 0;
+let number2 = 0;
+let operation = null;
+let operationPressed = false;
+
+const MAX_DISPLAY_LENGTH = 9;
 
 function appendDisplay(num) {
-    display.textContent += num;
-    displayValue = display.textContent;
-    return displayValue;
+    if (operationPressed) {
+        operationPressed = false;
+        display.textContent = '';
+    }
+
+    if (display.textContent.length < MAX_DISPLAY_LENGTH) {
+        if (num === '.' && display.textContent.includes('.')) {
+            return;
+        }
+        display.textContent += num;
+    }
 }
 
+function pressOperation(oper) {
+    number1 = parseFloat(display.textContent);
+    const operationName = oper.split(' ')
+        .find(name => operations.hasOwnProperty(name));
+    operation = operations[operationName];
+    operationPressed = true;
+} 
 
 function clearDisplay() {
-    display.textContent = ''
+    display.textContent = '';
+    number1 = 0;
+    number2 = 0;
+    operation = null;
+    operationPressed = false;
+} 
+
+function negateNumber() {
+    if (display.textContent) {
+        display.textContent = (-parseFloat(display.textContent)).toString();
+    }
 }
 
-function negateDisplay() {
-    if (display.textContent[0] === '-') {
-        display.textContent[0] = ''
-    } else {
-        display.textContent[0] = '-'
+function percentNumber() {
+    if (display.textContent) {
+        display.textContent = (parseFloat(display.textContent) / 100).toString();
     }
+}
+
+function operate() {
+    if (!operation) return;
+    number2 = parseFloat(display.textContent);
+    const result = operation(number1, number2).toFixed(2);
+    display.textContent = result;
+    number1 = result;
+    operation = null;
 }
 
 numberButtons.forEach((button) => {
     button.addEventListener('click', () => appendDisplay(button.textContent));
 })
 
-clearButton.addEventListener('click', () => clearDisplay());
+clearButton.addEventListener('click', clearDisplay);
 
-negateButton.addEventListener('click', () => negateDisplay());
-
-equalButton.addEventListener('click', () => {
-
+operationButtons.forEach((button) => {
+    button.addEventListener('click', () => pressOperation(button.className));
 })
+
+negateButton.addEventListener('click', negateNumber);
+
+percentButton.addEventListener('click', percentNumber);
+
+equalButton.addEventListener('click', operate);

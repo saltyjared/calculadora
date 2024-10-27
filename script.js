@@ -116,3 +116,22 @@ negateButton.addEventListener('click', negateNumber);
 percentButton.addEventListener('click', percentNumber);
 
 equalButton.addEventListener('click', operate);
+
+function updateTime() {
+    const timeDiv = document.querySelector('.time');
+    const now = new Date();
+    
+    const hours = now.getHours();
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    
+    // Format in 12-hour time with AM/PM
+    let displayHours = hours % 12;
+    displayHours = displayHours ? displayHours : 12; // Convert 0 to 12
+    
+    timeDiv.textContent = `${displayHours}:${minutes}`;
+}
+
+updateTime();
+setInterval(updateTime, 1000);
+
+// To-do: add keyboard support

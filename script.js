@@ -37,12 +37,14 @@ let number1 = 0;
 let number2 = 0;
 let operation = null;
 let operationPressed = false;
+let equalsPressed = false;
 
-const MAX_DISPLAY_LENGTH = 9;
+const MAX_DISPLAY_LENGTH = 8;
 
 function appendDisplay(num) {
-    if (operationPressed) {
+    if (operationPressed || equalsPressed) {
         operationPressed = false;
+        equalsPressed = false;
         display.textContent = '';
     }
 
@@ -82,13 +84,21 @@ function percentNumber() {
     }
 }
 
+function getDecimalPlaces(num) {
+    const decimals = num.toString().split('.')[1];
+    return decimals ? decimals.length : 0;
+}
+
 function operate() {
     if (!operation) return;
     number2 = parseFloat(display.textContent);
-    const result = operation(number1, number2).toFixed(2);
+    const num1DecPlaces = getDecimalPlaces(number1);
+    const num2DecPlaces = getDecimalPlaces(number2);
+    const result = operation(number1, number2).toFixed(Math.max(num1DecPlaces, num2DecPlaces));
     display.textContent = result;
     number1 = result;
     operation = null;
+    equalsPressed = true;
 }
 
 numberButtons.forEach((button) => {
